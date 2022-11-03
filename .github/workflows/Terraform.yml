@@ -10,14 +10,6 @@ jobs:
     steps:
     - name: checkout 
       uses: actions/checkout@master
-    - name: terraform-fmt
-      uses: hashicorp/terraform-github-actions@master
-      with:
-          tf_actions_version: 0.5.0
-          tf_action_subcommad: "format"
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TF_ACTION_WORKING_DIR: .
     - name: terraform-init
       uses: hashicorp/terraform-github-actions@master
       with:
