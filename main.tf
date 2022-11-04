@@ -3,12 +3,12 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "resource_group" {
-  name     = "Storagerg1"
+  name     = "storagerg1"
   location = "West us"
 }
 
 resource "azurerm_storage_account" "Storage_Account" {
-  name                         = "Storagea1"
+  name                         = "storagea1"
   location                     = azurerm_resource_group.resource_group.location
   resource_group_name          = azurerm_resource_group.resource_group.name
   account_tier                 = "Standard"
