@@ -16,9 +16,6 @@ jobs:
       with:
        # terraform_version: 0.13.0
        cli_config_credentials_token: 4{{ secrets.TF_API_Token }}
-    - name: Terraform Format
-      id: fmt
-      run: terraform fmt -check
     - name: terraform-init
       id: init
       run: terraform init
