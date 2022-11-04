@@ -32,7 +32,5 @@ jobs:
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TF_ACTION_WORKSPACE: default
-          rgname: ${{secrets.TF_VAR_RGNAME}}
-          location: ${{secrets.TF_VAR_LOCATION}}
       run: 
           -var="rgname=${{secrets.TF_VAR_RGNAME}}""location: ${{secrets.TF_VAR_LOCATION}}"
