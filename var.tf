@@ -8,7 +8,7 @@ variable "location" {
  description = "Location of resource group"
 }
 
-variable "Storage_account_name" {
+variable "storage_account_name" {
  type        = string
  description = "Storage account name"
 }
@@ -18,17 +18,17 @@ variable "storage_account_location" {
  description = "storage account location"
 }
 
-variable "Storage_Resource_group_name" {
+variable "storage_Resource_group_name" {
  type        = string
  description = "storage resource group name"
 }
 
-variable "Account_tier" {
+variable "account_tier" {
  type        = string
  description = "Account tier"
 }
 
-variable "Account_replication_type" {
+variable "account_replication_type" {
  type        = string
  description = "Account replication type"
 }
