@@ -18,7 +18,7 @@ variable "storage_account_location" {
  description = "storage account location"
 }
 
-variable "storage_Resource_group_name" {
+variable "storage_resource_group_name" {
  type        = string
  description = "storage resource group name"
 }
