@@ -1,8 +1,9 @@
-name: 'Terraform GitHub Actions'
+name: 'Terraform'
 on:
- - pull_request
- - push
-
+ push:
+  branches:
+   -main
+ pull_request:
 jobs:
   terraform:
     name: 'Terraform'
@@ -10,29 +11,60 @@ jobs:
     steps:
     - name: checkout 
       uses: actions/checkout@master
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+       # terraform_version: 0.13.0
+       cli_config_credentials_token: 4{{ secrets.TF_API_Token }}
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
     - name: terraform-init
-      uses: hashicorp/terraform-github-actions@master
-      with:
-          tf_actions_version: 0.12.31
-          tf_actions_subcommand: init
+      id: init
+      run: terraform init
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate 
+    - name: Terraform Plan
+      id: plan
+      if: github.event_name == 'pull_request'
+      run: terraform plan -input=false
+      continue-on-error: true
+         
+    - name: Update Pull Request
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
       env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: terraform-validate
-      uses: hashicorp/terraform-github-actions@master
+         PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
       with:
-          tf_actions_version: 0.12.31
-          tf_actions_subcommand: validate
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: terraform-plan
-      uses: hashicorp/terraform-github-actions@master
-      with:
-          tf_actions_version: 0.12.31
-          tf_actions_subcommand: plan
-          -var="rgname: ${{secrets.TF_VAR_RGNAME}}" 
-          -var="location: ${{secrets.TF_VAR_LOCATION}}"
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TF_ACTION_WORKSPACE: default
-          rgname: ${{secrets.TF_VAR_RGNAME}}
-          location: ${{secrets.TF_VAR_LOCATION}}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+         const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+         #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+         #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+         #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+         <details><summary>Show Plan</summary>
+
+         \`\`\`\n
+         ${process.env.PLAN}
+         \`\`\`
+
+         </details>
+
+         *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+         github.rest.issues.createComment({
+         issue_number: context.issue.number,
+         owner: context.repo.owner,
+         repo: context.repo.repo,
+         body: output
+         })     
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+      
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
